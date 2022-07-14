@@ -72,8 +72,12 @@ try {
 let initializeSequelize = require(modelsDir);
 
 let sequelize = initializeSequelize().sequelize;
-
 let models = sequelize.models;
+
+let databaseSchema;
+if (sequelize.options.migrationStorageTableSchema) {
+    databaseSchema = sequelize.options.migrationStorageTableSchema;
+}
 
 currentState.tables = migrate.reverseModels(sequelize, models);
 
@@ -82,7 +86,7 @@ let actions = migrate.parseDifference(previousState.tables, currentState.tables)
 // sort actions
 migrate.sortActions(actions);
 
-let migration = migrate.getMigration(actions);
+let migration = migrate.getMigration(actions, databaseSchema);
 
 if (migration.commandsUp.length === 0)
 {
